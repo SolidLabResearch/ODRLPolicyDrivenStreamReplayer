@@ -18,5 +18,9 @@
         "supertest": "^6.3.3",
         "ts-jest": "^29.0.3",
         "typescript": "^4.9.4"
+    },
+    "dependencies": {
+        "axios": "^1.6.8",
+        "n3": "^1.17.3"
     }
 }
