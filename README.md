@@ -4,7 +4,7 @@ A simpler sensor data replayer to the inbox of an LDES in LDP or any LDP contain
 
 ## License
 
-This code is copyrighted by [Ghent University - imec](https://www.ugent.be/ea/idlab/en) and released under the [MIT Licence](./LICENCE) 
+This code is copyrighted by [Ghent University - imec](https://www.ugent.be/ea/idlab/en) and released under the [MIT Licence](./LICENCE.md) 
 
 ## Contact
 
