@@ -17,15 +17,17 @@ export class PublishObservations {
     private stream_consumer: StreamConsumer;
     private initializePromise: Promise<void>;
     private observation_pointer: number;
-    private ldp_inbox: any;
+    private container_to_publish: any;
+    private is_ldes: boolean;
     private sorted_observation_subjects!: string[] // This is a string array that will be populated with the sorted observation subjects from the dataset.;
 
-    constructor(ldes_location: string, file_location: string, frequency: number) {
+    constructor(ldes_location: string, file_location: string, frequency: number, is_ldes: boolean) {
         this.ldes_location = ldes_location;
         this.store = new N3.Store();
         this.file_location = file_location;
         this.stream_consumer = new StreamConsumer(this.store);
         this.observation_pointer = 0;
+        this.is_ldes = is_ldes;
         this.sort_subject_length = 0;
         this.communication = new LDPCommunication();
         this.frequency = frequency;
@@ -35,9 +37,13 @@ export class PublishObservations {
     public async initialize() {
         try {
             const store: typeof N3.Store = await this.load_dataset(this.file_location);
-            this.ldp_inbox = await this.get_inbox();
-            console.log('The inbox is: ' + this.ldp_inbox);
-
+            if (this.is_ldes) {
+                this.container_to_publish = await this.get_inbox();
+                console.log('The inbox is: ' + this.container_to_publish);
+            }
+            else {
+                this.container_to_publish = this.ldes_location;
+            }
             const sorted_observation_subjects = await this.sort_observations(store);
             this.sorted_observation_subjects = sorted_observation_subjects;
             return; // This is a promise that resolves when the initialization is done.
@@ -83,7 +89,7 @@ export class PublishObservations {
         }
         else {
             try {
-                if (this.sorted_observation_subjects[this.observation_pointer]){
+                if (this.sorted_observation_subjects[this.observation_pointer]) {
                     const observation = JSON.stringify(this.sorted_observation_subjects[this.observation_pointer]);
                     const observation_object = JSON.parse(observation);
                     this.store.removeQuads(this.store.getQuads(namedNode(observation_object), namedNode('https://saref.etsi.org/core/hasTimestamp'), null, null));
@@ -91,13 +97,13 @@ export class PublishObservations {
                     this.store.addQuad(namedNode(observation_object), namedNode('https://saref.etsi.org/core/hasTimestamp'), literal(time_now));
                     const store_observation = new N3.Store(this.store.getQuads(namedNode(observation_object), null, null, null));
                     const store_observation_string = storeToString(store_observation);
-                    await this.communication.post(this.ldp_inbox, store_observation_string).then((response) => {
+                    await this.communication.post(this.container_to_publish, store_observation_string).then((response) => {
                         if (response.status !== 201) {
                             console.error('The observation could not be posted.');
                         }
                     });
                     this.observation_pointer++;
-                    if(this.observation_pointer === this.sort_subject_length){
+                    if (this.observation_pointer === this.sort_subject_length) {
                         console.log('All observations have been published.');
                         return;
                     }
@@ -170,9 +176,9 @@ export class PublishObservations {
     }
 
     async get_inbox() {
-        const inbox = await this.extract_ldp_inbox(this.ldes_location);
+        const inbox = await this.extract_container_to_publish(this.ldes_location);
         if (inbox) {
-            this.ldp_inbox = inbox;
+            this.container_to_publish = inbox;
             return inbox;
         }
         else {
@@ -180,7 +186,7 @@ export class PublishObservations {
         }
     }
 
-    async extract_ldp_inbox(ldes_stream_location: string) {
+    async extract_container_to_publish(ldes_stream_location: string) {
         const store = new N3.Store();
         try {
             const response = await axios.get(ldes_stream_location);

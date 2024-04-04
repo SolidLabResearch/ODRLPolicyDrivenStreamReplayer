@@ -1,6 +1,6 @@
 # KISS Solid Stream Replayer
 
-A simpler sensor data replayer to the inbox of an LDES in LDP.
+A simpler sensor data replayer to the inbox of an LDES in LDP or any LDP container.
 
 ## Usage
 
@@ -16,11 +16,14 @@ Now, navigate to the `src/config` folder and update the `config.json` file with 
 
 ```json
 {
-    "ldes_location": "insert_ldes_location_here",
-    "frequency": 4, // number of events per second
+    "ldes_location": "insert_location_here",
+    "frequency": 4,
     "file_location": "insert_file_location_here",
+    "is_ldes": true,
 }
 ```
+
+If the `is_ldes` parameter is set to `true`, the `ldes_location` parameter should be the location of the LDES. The replayer will itself extract the inbox of the LDES stream.  If the `is_ldes` parameter is set to `false`, the `ldes_location` parameter should be the location of the LDP container.
 
 Now, build the project using the following command:
 
