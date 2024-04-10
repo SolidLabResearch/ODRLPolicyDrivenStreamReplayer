@@ -19,7 +19,7 @@ export class PublishObservations {
     private observation_pointer: number;
     private container_to_publish: any;
     private is_ldes: boolean;
-    private sorted_observation_subjects!: string[] // This is a string array that will be populated with the sorted observation subjects from the dataset.;
+    private sorted_observation_subjects!: string[] // This is a string array that will be populated with the sorted observation subjects from the dataset.
 
     constructor(ldes_location: string, file_location: string, frequency: number, is_ldes: boolean) {
         this.ldes_location = ldes_location;
@@ -125,6 +125,7 @@ export class PublishObservations {
             }
             else {
                 console.log('No observations to replay');
+                return;
             }
         }
         else {
