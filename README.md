@@ -1,4 +1,4 @@
-# KISS Solid Stream Replayer
+# KISS Decentralized Stream Replayer
 
 A simpler sensor data replayer to the inbox of an LDES in LDP or any LDP container.
 

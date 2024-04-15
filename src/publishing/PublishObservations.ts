@@ -1,4 +1,4 @@
-import { LDPCommunication, storeToString } from '@treecg/versionawareldesinldp';
+import { LDESinLDP, LDPCommunication, storeToString } from '@treecg/versionawareldesinldp';
 import * as fs from 'fs';
 const N3 = require('n3');
 import axios from 'axios';
@@ -7,6 +7,9 @@ const parser = new N3.Parser();
 const { DataFactory } = N3;
 const { namedNode, literal } = DataFactory;
 
+/**
+ * The PublishObservations class is a class that is used to publish observations to an LDES stream.
+ */
 export class PublishObservations {
     public ldes_location: string;
     public file_location: string;
@@ -18,14 +21,23 @@ export class PublishObservations {
     private initializePromise: Promise<void>;
     private observation_pointer: number;
     private container_to_publish: any;
+    private tree_path: string;
     private is_ldes: boolean;
     private sorted_observation_subjects!: string[] // This is a string array that will be populated with the sorted observation subjects from the dataset.
 
-    constructor(ldes_location: string, file_location: string, frequency: number, is_ldes: boolean) {
+    /**
+     * Constructor for the PublishObservations class.
+     * @param {string} ldes_location - The location of the LDES stream.
+     * @param {string} file_location - The location of the file.
+     * @param {number} frequency - The frequency of the replay.
+     * @param {boolean} is_ldes - A boolean that indicates if the stream is an LDES stream.
+     */
+    constructor(ldes_location: string, file_location: string, frequency: number, is_ldes: boolean, tree_path: string) {
         this.ldes_location = ldes_location;
         this.store = new N3.Store();
         this.file_location = file_location;
         this.stream_consumer = new StreamConsumer(this.store);
+        this.tree_path = tree_path;
         this.observation_pointer = 0;
         this.is_ldes = is_ldes;
         this.sort_subject_length = 0;
@@ -34,10 +46,18 @@ export class PublishObservations {
         this.initializePromise = this.initialize();
     }
 
+    /**
+     * Initializes the class by loading the dataset and sorting the observations of PublishObservations.
+     * @returns {Promise<void>} - A promise that resolves when the initialization is done.
+     */
     public async initialize() {
         try {
             const store: typeof N3.Store = await this.load_dataset(this.file_location);
             if (this.is_ldes) {
+                const ldes_stream = new LDESinLDP(this.ldes_location, new LDPCommunication());
+                await ldes_stream.initialise({
+                    treePath: this.tree_path,
+                });
                 this.container_to_publish = await this.get_inbox();
                 console.log('The inbox is: ' + this.container_to_publish);
             }
@@ -54,6 +74,11 @@ export class PublishObservations {
         }
     }
 
+    /**
+     * Loads the dataset from a file into the memory store.
+     * @param {string} file_location - The location of the file.
+     * @returns {Promise<typeof N3.Store>} - A promise that resolves when the dataset has been loaded.
+     */
     async load_dataset(file_location: string): Promise<typeof N3.Store> {
         return new Promise((resolve, reject) => {
             const stream_parser = new N3.StreamParser();
@@ -67,6 +92,11 @@ export class PublishObservations {
         });
     }
 
+    /**
+     * Sorts the observations.
+     * @param {any} store - The store to use.
+     * @returns {Promise<string[]>} - A promise that resolves when the observations have been sorted.
+     */
     async sort_observations(store: any) {
         const temporary_array = [];
         for (const quad of store.match(null, 'https://saref.etsi.org/core/measurementMadeBy', null)) {
@@ -82,6 +112,10 @@ export class PublishObservations {
         return sorted_observation_subjects;
     }
 
+    /**
+     * Publishes one observation to the LDES stream.
+     * @returns {Promise<void>} - A promise that resolves when the observation has been published.
+     */
     async publish_one_observation() {
         if (this.observation_pointer > this.sort_subject_length) {
             console.log('All observations have been published.');
@@ -115,6 +149,10 @@ export class PublishObservations {
         }
     }
 
+    /**
+     * Replays the observations.
+     * @returns {Promise<void>} - A promise that resolves when the observations have been replayed.
+     */
     async replay_observations() {
         await this.initializePromise;
         if (this.store) {
@@ -133,25 +171,38 @@ export class PublishObservations {
         }
     }
 
+    /**
+     * Merge sort function.
+     * @param {string[]} array - The array to sort.
+     * @param {any} store - The store to use.
+     * @returns {string[]} - The sorted array.
+     */
     merge_sort(array: string[], store: any): string[] {
         if (array.length <= 1) {
             return array;
         }
 
-        let middle = Math.floor(array.length / 2);
-        let left: string[] = this.merge_sort(array.slice(0, middle), store);
-        let right: string[] = this.merge_sort(array.slice(middle), store);
+        const middle = Math.floor(array.length / 2);
+        const left: string[] = this.merge_sort(array.slice(0, middle), store);
+        const right: string[] = this.merge_sort(array.slice(middle), store);
         return this.merge(left, right, store);
     }
 
+    /**
+     * Merge function for the merge sort.
+     * @param {string[]} array_one - The first array to merge.
+     * @param {string[]} array_two - The second array to merge.
+     * @param {any} store - The store to use.
+     * @returns {string[]} - The merged array.
+     */
     merge(array_one: string[], array_two: string[], store: any): string[] {
-        let merged: string[] = [];
+        const merged: string[] = [];
         let i: number = 0;
         let j: number = 0;
 
         while (i < array_one.length && j < array_two.length) {
-            let timestamp_one = store.getObjects(namedNode(array_one[i]).id, namedNode('https://saref.etsi.org/core/hasTimestamp', null));
-            let timestamp_two = store.getObjects(namedNode(array_two[j]).id, namedNode('https://saref.etsi.org/core/hasTimestamp', null));
+            const timestamp_one = store.getObjects(namedNode(array_one[i]).id, namedNode('https://saref.etsi.org/core/hasTimestamp', null));
+            const timestamp_two = store.getObjects(namedNode(array_two[j]).id, namedNode('https://saref.etsi.org/core/hasTimestamp', null));
 
             if (timestamp_one > timestamp_two) {
                 merged.push(array_one[i]);
@@ -176,6 +227,10 @@ export class PublishObservations {
         return merged;
     }
 
+    /**
+     * Extracts the inbox from the LDES stream.
+     * @returns {string} - The location of the inbox.
+     */
     async get_inbox() {
         const inbox = await this.extract_container_to_publish(this.ldes_location);
         if (inbox) {
@@ -187,6 +242,11 @@ export class PublishObservations {
         }
     }
 
+    /**
+     * Extracts the container to publish from the LDES stream.
+     * @param {string} ldes_stream_location - The location of the LDES stream.
+     * @returns {string} - The location of the container to publish. 
+     */
     async extract_container_to_publish(ldes_stream_location: string) {
         const store = new N3.Store();
         try {
@@ -209,6 +269,21 @@ export class PublishObservations {
             }
         } catch (error) {
             console.error(error);
+        }
+    }
+
+    async check_if_ldes_stream_exists(ldes_stream_location: string) {
+        try {
+            const response = await axios.get(ldes_stream_location);
+            if (response.status === 200) {
+                return true;
+            }
+            else {
+                return false;
+            }
+        } catch (error) {
+            console.error(error);
+            return false;
         }
     }
 }
