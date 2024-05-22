@@ -5,7 +5,7 @@ import { PublishObservations } from './publishing/PublishObservations';
  * Starts the replay of observations.
  */
 async function main() {
-    const publish_observations = new PublishObservations(json_props.location, json_props.file_location, json_props.frequency, json_props.is_ldes, json_props.tree_path);
+    const publish_observations = new PublishObservations(json_props.locations, json_props.file_location, json_props.frequency, json_props.is_ldes, json_props.tree_path);
     await publish_observations.replay_observations();
 }
 
