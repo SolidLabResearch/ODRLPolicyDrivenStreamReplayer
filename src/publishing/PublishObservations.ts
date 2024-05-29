@@ -142,7 +142,9 @@ export class PublishObservations {
                     const store_observation = new N3.Store(this.store.getQuads(namedNode(observation_object), null, null, null));
                     const store_observation_string = storeToString(store_observation);
                     for (const container of this.containers_to_publish) {
-                        await this.communication.post(container, store_observation_string, headers);
+                        await this.communication.post(container, store_observation_string, headers).then((response) => {
+                            console.log(response);
+                        });
                     }
                     this.observation_pointer++;
                     if (this.observation_pointer === this.sort_subject_length) {
@@ -271,7 +273,7 @@ export class PublishObservations {
                     }
                 });
                 const inbox = store.getQuads(null, 'http://www.w3.org/ns/ldp#inbox', null)[0].object.value;
-                return ldes_stream_location + inbox;
+                return inbox;
             }
             else {
                 throw new Error("The response object is empty.");

@@ -1,6 +1,6 @@
 {
     "locations": [
-        "http://n061-14a.wall2.ilabt.iminds.be:3000/participant6/skt/"
+        "http://n079-11.wall1.ilabt.imec.be:8080/pod1/acc-x/"
     ],
     "frequency": 1,
     "file_location": "/home/kush/Code/feather-RDF-mapper/data/rdfData/skt/skt-300obs.nt",
