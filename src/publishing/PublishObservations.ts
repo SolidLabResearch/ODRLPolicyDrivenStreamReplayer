@@ -22,6 +22,7 @@ export class PublishObservations {
     private initializePromise: Promise<void>;
     private observation_pointer: number;
     private containers_to_publish: string[];
+    private time_start_replay: number;
     private tree_path: string;
     private is_ldes: boolean;
     private number_of_post: number;
@@ -45,6 +46,7 @@ export class PublishObservations {
         this.containers_to_publish = [];
         this.is_ldes = is_ldes;
         this.sort_subject_length = 0;
+        this.time_start_replay = Date.now();
         this.communication = new LDPCommunication();
         this.frequency = frequency;
         this.initializePromise = this.initialize();
@@ -148,7 +150,7 @@ export class PublishObservations {
                     }
                     this.observation_pointer++;
                     if (this.observation_pointer === this.sort_subject_length) {
-                        console.log('All observations have been published.');
+                        console.log(`All observations have been published in time ${Date.now() - this.time_start_replay}`);
                         return;
                     }
                 } else {
@@ -273,7 +275,7 @@ export class PublishObservations {
                     }
                 });
                 const inbox = store.getQuads(null, 'http://www.w3.org/ns/ldp#inbox', null)[0].object.value;
-                return inbox;
+                return ldes_stream_location + inbox;
             }
             else {
                 throw new Error("The response object is empty.");
