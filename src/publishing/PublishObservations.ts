@@ -144,9 +144,11 @@ export class PublishObservations {
                     const store_observation = new N3.Store(this.store.getQuads(namedNode(observation_object), null, null, null));
                     const store_observation_string = storeToString(store_observation);
                     for (const container of this.containers_to_publish) {
-                        await this.communication.post(container, store_observation_string, headers).then((response) => {
-                            console.log(`Observation ${this.sorted_observation_subjects[this.observation_pointer]} has been published to the container ${container}`);
-                        });
+                        if (this.sorted_observation_subjects[this.observation_pointer] !== undefined) {
+                            await this.communication.post(container, store_observation_string, headers).then((response) => {
+                                console.log(`Observation ${this.sorted_observation_subjects[this.observation_pointer]} has been published to the container ${container}`);
+                            });
+                        }
                     }
                     this.observation_pointer++;
                     if (this.observation_pointer === this.sort_subject_length) {
