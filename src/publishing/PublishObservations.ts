@@ -145,6 +145,7 @@ export class PublishObservations {
                     const store_observation_string = storeToString(store_observation);
                     for (const container of this.containers_to_publish) {
                         await this.communication.post(container, store_observation_string, headers).then((response) => {
+                            console.log(`Observation ${this.sorted_observation_subjects[this.observation_pointer]} has been published to the container ${container}`);
                         });
                     }
                     this.observation_pointer++;
