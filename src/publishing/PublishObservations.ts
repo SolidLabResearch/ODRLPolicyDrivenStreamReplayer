@@ -128,7 +128,7 @@ export class PublishObservations {
     async publish_one_observation() {
         if (this.observation_pointer > this.sort_subject_length) {
             console.log('All observations have been published.');
-            return;
+            process.exit();
         }
         else {
             try {
@@ -143,11 +143,14 @@ export class PublishObservations {
                     this.store.addQuad(namedNode(observation_object), namedNode('https://saref.etsi.org/core/hasTimestamp'), literal(time_now));
                     const store_observation = new N3.Store(this.store.getQuads(namedNode(observation_object), null, null, null));
                     const store_observation_string = storeToString(store_observation);
+
                     for (const container of this.containers_to_publish) {
                         if (this.observation_pointer <= this.sort_subject_length) {
-                            await this.communication.post(container, store_observation_string, headers).then((response) => {
-                                console.log(`Observation ${this.sorted_observation_subjects[this.observation_pointer]} has been published to the container ${container}`);
-                            });
+                            if (store_observation_string !== '' && store_observation_string !== undefined && store_observation_string !== null) {
+                                await this.communication.post(container, store_observation_string, headers).then((response) => {
+                                    console.log(`Observation ${this.sorted_observation_subjects[this.observation_pointer]} has been published to the container ${container}`);
+                                });
+                            }
                         }
                     }
                     this.observation_pointer++;
