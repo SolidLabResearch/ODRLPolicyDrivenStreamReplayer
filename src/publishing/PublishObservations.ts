@@ -135,6 +135,7 @@ export class PublishObservations {
                 if (this.sorted_observation_subjects[this.observation_pointer]) {
                     const headers: Headers = new Headers({
                         timeout: '10000',
+                        'Content-Type': 'text/turtle',
                     });
                     const observation = JSON.stringify(this.sorted_observation_subjects[this.observation_pointer]);
                     const observation_object = JSON.parse(observation);
@@ -143,7 +144,6 @@ export class PublishObservations {
                     this.store.addQuad(namedNode(observation_object), namedNode('https://saref.etsi.org/core/hasTimestamp'), literal(time_now));
                     const store_observation = new N3.Store(this.store.getQuads(namedNode(observation_object), null, null, null));
                     const store_observation_string = storeToString(store_observation);
-
                     for (const container of this.containers_to_publish) {
                         if (this.observation_pointer <= this.sort_subject_length) {
                             if (store_observation_string !== '' && store_observation_string !== undefined && store_observation_string !== null) {
