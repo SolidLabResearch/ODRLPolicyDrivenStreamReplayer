@@ -8,6 +8,13 @@ const parser = new N3.Parser();
 const { DataFactory } = N3;
 const { namedNode, literal } = DataFactory;
 
+
+interface QueueItem {
+    container: string;
+    data: string;
+    headers: Headers;
+}
+
 /**
  * The PublishObservations class is a class that is used to publish observations to an LDES stream.
  */
@@ -26,6 +33,8 @@ export class PublishObservations {
     private tree_path: string;
     private is_ldes: boolean;
     private number_of_post: number;
+    private queue: QueueItem[] = [];
+    private intervalId: NodeJS.Timeout | null = null;
     private sorted_observation_subjects!: string[] // This is a string array that will be populated with the sorted observation subjects from the dataset.
 
     /**
@@ -147,8 +156,10 @@ export class PublishObservations {
                     for (const container of this.containers_to_publish) {
                         if (this.observation_pointer <= this.sort_subject_length) {
                             if (store_observation_string !== '' && store_observation_string !== undefined && store_observation_string !== null) {
-                                await this.post_with_retry(container, store_observation_string, headers, 5, 20000).then((response) => {
-                                    console.log(`Observation ${this.sorted_observation_subjects[this.observation_pointer]} has been published to the container ${container}`);
+                                this.queue.push({
+                                    container: container,
+                                    data: store_observation_string,
+                                    headers: headers
                                 });
                             }
                         }
@@ -167,6 +178,24 @@ export class PublishObservations {
         }
     }
 
+
+    private async process_queue() {
+        if (this.queue.length > 0) {
+            const item = this.queue.shift();
+            if (item) {
+                try {
+                    await this.post_with_retry(item.container, item.data, item.headers, 3, 1000);
+                    console.log(`Posted to ${item.container}`);
+                }
+                catch (error) {
+                    console.log(`Failed to post to ${item.container}: ${error}`);
+
+                }
+
+            }
+        }
+    }
+
     /**
      * Replays the observations.
      * @returns {Promise<void>} - A promise that resolves when the observations have been replayed.
@@ -176,6 +205,10 @@ export class PublishObservations {
         if (this.store) {
             console.log('Replaying observations...');
             if (this.observation_pointer < this.sorted_observation_subjects.length) {
+                this.intervalId = setInterval(() => {
+                    this.process_queue();
+                }, 1000 / this.frequency);
+
                 setInterval(() => {
                     this.publish_one_observation();
                 }, 1000 / this.frequency);
@@ -305,7 +338,7 @@ export class PublishObservations {
         }
     }
 
-    async post_with_retry(container: string, data: string, headers: Headers, retries: number, backoff: number): Promise<void>{
+    async post_with_retry(container: string, data: string, headers: Headers, retries: number, backoff: number): Promise<void> {
         for (let attempt = 1; attempt <= retries; attempt++) {
             try {
                 await this.communication.post(container, data, headers);
