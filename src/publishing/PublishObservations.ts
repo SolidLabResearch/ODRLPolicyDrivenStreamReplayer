@@ -22,6 +22,7 @@ export class PublishObservations {
     public ldes_locations: string[];
     public file_location: string;
     public frequency: number;
+    public frequency_buffer: number;
     private communication: LDPCommunication;
     private store: any;
     private sort_subject_length: number;
@@ -44,7 +45,7 @@ export class PublishObservations {
      * @param {number} frequency - The frequency of the replay.
      * @param {boolean} is_ldes - A boolean that indicates if the stream is an LDES stream.
      */
-    constructor(ldes_locations: string[], file_location: string, frequency: number, is_ldes: boolean, tree_path: string) {
+    constructor(ldes_locations: string[], file_location: string, frequency: number, frequency_buffer: number, is_ldes: boolean, tree_path: string) {
         this.ldes_locations = ldes_locations;
         this.store = new N3.Store();
         this.file_location = file_location;
@@ -55,6 +56,7 @@ export class PublishObservations {
         this.containers_to_publish = [];
         this.is_ldes = is_ldes;
         this.sort_subject_length = 0;
+        this.frequency_buffer = frequency_buffer;
         this.time_start_replay = Date.now();
         this.communication = new LDPCommunication();
         this.frequency = frequency;
@@ -211,7 +213,7 @@ export class PublishObservations {
 
                 setInterval(() => {
                     this.publish_one_observation();
-                }, 1000 / this.frequency);
+                }, 1000 / this.frequency_buffer);
             }
             else {
                 console.log('No observations to replay');
