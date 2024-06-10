@@ -147,7 +147,7 @@ export class PublishObservations {
                     for (const container of this.containers_to_publish) {
                         if (this.observation_pointer <= this.sort_subject_length) {
                             if (store_observation_string !== '' && store_observation_string !== undefined && store_observation_string !== null) {
-                                await this.communication.post(container, store_observation_string, headers).then((response) => {
+                                await this.post_with_retry(container, store_observation_string, headers, 5, 1000).then((response) => {
                                     console.log(`Observation ${this.sorted_observation_subjects[this.observation_pointer]} has been published to the container ${container}`);
                                 });
                             }
@@ -302,6 +302,27 @@ export class PublishObservations {
         } catch (error) {
             console.error(error);
             return false;
+        }
+    }
+
+    async post_with_retry(container: string, data: string, headers: Headers, retries: number, backoff: number): Promise<void>{
+        for (let attempt = 1; attempt <= retries; attempt++) {
+            try {
+                await this.communication.post(container, data, headers);
+                console.log(`Successfully posted to ${container} on attempt ${attempt}`);
+                return;
+            } catch (error) {
+                console.error(`Attempt ${attempt} failed: ${error}`);
+                if (attempt < retries) {
+                    const delay = backoff * Math.pow(2, attempt - 1);
+                    console.log(`Retrying in ${delay} ms`);
+                    await new Promise((resolve) => setTimeout(resolve, delay));
+                }
+                else {
+                    console.error(`Failed to post to ${container} after ${retries} attempts.`);
+                    throw error;
+                }
+            }
         }
     }
 }
