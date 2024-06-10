@@ -147,7 +147,7 @@ export class PublishObservations {
                     for (const container of this.containers_to_publish) {
                         if (this.observation_pointer <= this.sort_subject_length) {
                             if (store_observation_string !== '' && store_observation_string !== undefined && store_observation_string !== null) {
-                                await this.post_with_retry(container, store_observation_string, headers, 5, 1000).then((response) => {
+                                await this.post_with_retry(container, store_observation_string, headers, 5, 20000).then((response) => {
                                     console.log(`Observation ${this.sorted_observation_subjects[this.observation_pointer]} has been published to the container ${container}`);
                                 });
                             }
