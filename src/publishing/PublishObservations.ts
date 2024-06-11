@@ -182,6 +182,7 @@ export class PublishObservations {
 
 
     private async process_queue() {
+        console.log(`Processing queue with ${this.queue.length} items`);
         if (this.queue.length > 0) {
             const item = this.queue.shift();
             if (item) {
