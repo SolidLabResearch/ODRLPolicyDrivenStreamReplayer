@@ -155,18 +155,22 @@ export class PublishObservations {
                     this.store.addQuad(namedNode(observation_object), namedNode('https://saref.etsi.org/core/hasTimestamp'), literal(time_now));
                     const store_observation = new N3.Store(this.store.getQuads(namedNode(observation_object), null, null, null));
                     const store_observation_string = storeToString(store_observation);
-                    for (const container of this.containers_to_publish) {
-                        if (this.observation_pointer <= this.sort_subject_length) {
-                            if (store_observation_string !== '' && store_observation_string !== undefined && store_observation_string !== null) {
-                                this.queue.push({
+                    if (this.observation_pointer <= this.sort_subject_length) {
+                        if (store_observation_string !== '' && store_observation_string !== undefined && store_observation_string !== null) {
+                            for (let container of this.containers_to_publish) {
+                                let queue_object = {
                                     container: container,
                                     data: store_observation_string,
                                     headers: headers
-                                });
+                                };
+                                this.queue.push(queue_object);
+                                console.log(`Added to queue: ${container} and queue length is ${this.queue.length}`);
                             }
                         }
                     }
                     this.observation_pointer++;
+                    console.log(`Published observation ${this.observation_pointer} in time ${Date.now() - this.time_start_replay}`);
+
                     if (this.observation_pointer === this.sort_subject_length) {
                         console.log(`All observations have been published in time ${Date.now() - this.time_start_replay}`);
                         process.exit();
@@ -182,19 +186,20 @@ export class PublishObservations {
 
 
     private async process_queue() {
-        console.log(`Processing queue with ${this.queue.length} items`);
         if (this.queue.length > 0) {
-            const item = this.queue.shift();
-            if (item) {
-                try {
-                    await this.post_with_retry(item.container, item.data, item.headers, 3, 1000);
-                    console.log(`Posted to ${item.container}`);
-                }
-                catch (error) {
-                    console.log(`Failed to post to ${item.container}: ${error}`);
+            const items_to_publish = this.queue.splice(0, this.containers_to_publish.length);
+            for (const item of items_to_publish) {
+                if (item) {
+                    try {
+                        await this.post_with_retry(item.container, item.data, item.headers, 3, 1000);
+                        console.log(`Posted to ${item.container}`);
+                    }
+                    catch (error) {
+                        console.log(`Failed to post to ${item.container}: ${error}`);
+
+                    }
 
                 }
-
             }
         }
     }
@@ -206,7 +211,6 @@ export class PublishObservations {
     async replay_observations() {
         await this.initializePromise;
         if (this.store) {
-            console.log('Replaying observations...');
             if (this.observation_pointer < this.sorted_observation_subjects.length) {
                 this.intervalId = setInterval(() => {
                     this.process_queue();
