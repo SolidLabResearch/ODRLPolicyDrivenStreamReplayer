@@ -192,7 +192,6 @@ export class PublishObservations {
                 if (item) {
                     try {
                         await this.post_with_retry(item.container, item.data, item.headers, 3, 1000);
-                        this.number_of_post++;
                     }
                     catch (error) {
                         console.log(`Failed to post to ${item.container}: ${error}`);
@@ -348,7 +347,9 @@ export class PublishObservations {
     async post_with_retry(container: string, data: string, headers: Headers, retries: number, backoff: number): Promise<void> {
         for (let attempt = 1; attempt <= retries; attempt++) {
             try {
-                await this.communication.post(container, data, headers);
+                await this.communication.post(container, data, headers).then((response) => {
+                    this.number_of_post++;
+                });
                 console.log(`Successfully posted to ${container} on attempt ${attempt}`);
                 return;
             } catch (error) {
