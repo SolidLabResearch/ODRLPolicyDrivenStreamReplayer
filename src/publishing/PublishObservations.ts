@@ -136,7 +136,7 @@ export class PublishObservations {
      * @returns {Promise<void>} - A promise that resolves when the observation has been published.
      */
     async publish_one_observation() {
-        if (this.number_of_post > this.sort_subject_length) {
+        if (this.number_of_post > this.sort_subject_length * this.containers_to_publish.length) {
             console.log('All observations have been published.');
             process.exit();
         }
@@ -170,7 +170,7 @@ export class PublishObservations {
                     this.observation_pointer++;
                     console.log(`Published observation ${this.observation_pointer} in time ${Date.now() - this.time_start_replay}`);
 
-                    if (this.number_of_post === this.sort_subject_length) {
+                    if (this.number_of_post === this.sort_subject_length * this.containers_to_publish.length) {
                         console.log(`All observations have been published in time ${Date.now() - this.time_start_replay}`);
                         process.exit();
                     }
