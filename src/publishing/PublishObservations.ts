@@ -188,6 +188,7 @@ export class PublishObservations {
     private async process_queue() {
         if (this.queue.length > 0) {
             const items_to_publish = this.queue.splice(0, this.containers_to_publish.length);
+            console.log(`The items to publish are: ${items_to_publish.length}`);
             for (const item of items_to_publish) {
                 if (item) {
                     try {
