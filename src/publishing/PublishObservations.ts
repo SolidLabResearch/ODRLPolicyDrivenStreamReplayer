@@ -8,7 +8,6 @@ const parser = new N3.Parser();
 const { DataFactory } = N3;
 const { namedNode, literal } = DataFactory;
 
-
 interface QueueItem {
     container: string;
     data: string;
@@ -137,7 +136,7 @@ export class PublishObservations {
      * @returns {Promise<void>} - A promise that resolves when the observation has been published.
      */
     async publish_one_observation() {
-        if (this.observation_pointer > this.sort_subject_length) {
+        if (this.number_of_post > this.sort_subject_length) {
             console.log('All observations have been published.');
             process.exit();
         }
@@ -171,7 +170,7 @@ export class PublishObservations {
                     this.observation_pointer++;
                     console.log(`Published observation ${this.observation_pointer} in time ${Date.now() - this.time_start_replay}`);
 
-                    if (this.observation_pointer === this.sort_subject_length) {
+                    if (this.number_of_post === this.sort_subject_length) {
                         console.log(`All observations have been published in time ${Date.now() - this.time_start_replay}`);
                         process.exit();
                     }
@@ -193,7 +192,7 @@ export class PublishObservations {
                 if (item) {
                     try {
                         await this.post_with_retry(item.container, item.data, item.headers, 3, 1000);
-                        console.log(`Posted to ${item.container}`);
+                        this.number_of_post++;
                     }
                     catch (error) {
                         console.log(`Failed to post to ${item.container}: ${error}`);
