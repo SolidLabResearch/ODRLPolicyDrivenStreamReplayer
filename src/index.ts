@@ -1,5 +1,6 @@
 import * as json_props from './config/config.json';
 import { PublishObservations } from './publishing/PublishObservations';
+import * as fs from 'fs';
 
 /**
  * Starts the replay of observations.
@@ -11,4 +12,5 @@ async function main() {
 
 main().then(() => {
     console.log(`Starting the replay of observations`);
+    fs.writeFileSync('log.txt', `Starting the replay of observations at time ${new Date().getTime()}\n`);
 });
