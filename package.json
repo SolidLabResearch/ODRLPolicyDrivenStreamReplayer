@@ -1,6 +1,6 @@
 {
     "name": "solid-stream-replay",
-    "version": "2.0.1",
+    "version": "2.0.2",
     "description": "A tool to replay a stream of events from a file to a Solid Server with a POST request",
     "main": "dist/index.js",
     "scripts": {
