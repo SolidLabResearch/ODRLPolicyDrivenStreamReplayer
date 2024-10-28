@@ -7,7 +7,6 @@ import { create_ldp_container, update_latest_inbox } from '../Util';
 const parser = new N3.Parser();
 const { DataFactory } = N3;
 const { namedNode, literal } = DataFactory;
-const replayerLogFilePath = 'logs/replayer.log';
 
 interface QueueItem {
     container: string;
@@ -348,7 +347,7 @@ export class PublishObservations {
             try {
                 await this.communication.post(container, data, headers).then((response) => {
                     this.number_of_post++;
-                    fs.writeFileSync(replayerLogFilePath, `${Date.now()} : Observation ${this.number_of_post} Posted to ${container} with status code ${response.status} and attempt ${attempt}.\n`, { flag: 'a' });
+                    fs.writeFileSync('../../logs/replayer.log', `${Date.now()} : Observation ${this.number_of_post} Posted to ${container} with status code ${response.status} and attempt ${attempt}.\n`, { flag: 'a' });
                 });
 
                 console.log(`Successfully posted to ${container} on attempt ${attempt}`);
