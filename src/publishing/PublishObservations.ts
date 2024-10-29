@@ -347,7 +347,7 @@ export class PublishObservations {
             try {
                 await this.communication.post(container, data, headers).then((response) => {
                     this.number_of_post++;
-                    fs.appendFileSync('replayer-log.csv', `${Date.now()},${this.number_of_post}\n`, { flag: 'a' });
+                    fs.appendFileSync('replayer-log.csv', `${Date.now()},${this.number_of_post},${container}\n`, { flag: 'a' });
                 });
 
                 console.log(`Successfully posted to ${container} on attempt ${attempt}`);
