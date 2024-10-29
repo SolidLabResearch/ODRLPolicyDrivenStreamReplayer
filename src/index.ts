@@ -12,5 +12,5 @@ async function main() {
 
 main().then(() => {
     console.log(`Starting the replay of observations`);
-    fs.writeFileSync('log.txt', `Starting the replay of observations at time ${new Date().getTime()}\n`);
+    fs.appendFileSync('replayer-log.csv', `start_replayer,${new Date().getTime()}\n`);
 });
