@@ -14,3 +14,5 @@ main().then(() => {
     console.log(`Starting the replay of observations`);
     fs.appendFileSync('replayer-log.csv', `start_replayer,${new Date().getTime()}\n`);
 });
+
+
