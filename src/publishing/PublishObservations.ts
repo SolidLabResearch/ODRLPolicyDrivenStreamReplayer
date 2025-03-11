@@ -152,6 +152,8 @@ export class PublishObservations {
                         'Content-Type': 'text/turtle',
                         'Authorization': `${token_type} ${token}`
                     });
+                    console.log(headers);
+                    
                     const observation = JSON.stringify(this.sorted_observation_subjects[this.observation_pointer]);
                     const observation_object = JSON.parse(observation);
                     this.store.removeQuads(this.store.getQuads(namedNode(observation_object), namedNode('https://saref.etsi.org/core/hasTimestamp'), null, null));

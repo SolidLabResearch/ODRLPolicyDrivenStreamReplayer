@@ -55,7 +55,7 @@ export class AccessControlService {
         return policy;
     }
 
-    async authorizeRequest(purposeForWriting: string, legalBasis: string): Promise<boolean> {       
+    async authorizeRequest(purposeForWriting: string, legalBasis: string): Promise<boolean> {
         for (let resource of this.resources_to_write) {
             const fetch_response = await fetch(resource, {
                 method: 'GET',
@@ -82,23 +82,26 @@ export class AccessControlService {
                     'content-type': 'application/json'
                 },
                 body: JSON.stringify(writingRequestWithODRLClaims)
-            });            
+            });
             const tokenParameters = await monitoringServiceWritingResponseWithClaims.json();
-            console.log(tokenParameters.required_claims);
-            
+
             const accessWithTokenResponse = await fetch(resource, {
                 headers: {
                     'Authorization': `${tokenParameters.token_type} ${tokenParameters.access_token}`
                 }
             });
 
-            if (accessWithTokenResponse.status !== 200) {                
+            console.log(tokenParameters);
+
+            if (accessWithTokenResponse.status !== 200) {
                 console.log(`The request is unsuccessful and the monitoring service is not authorized to access the resource.`);
                 return false; // Return false immediately if any iteration fails
             }
+            else {
 
-            this.token_manager_service.setAccessToken(tokenParameters.access_token, tokenParameters.token_type);
-            console.log(`The request is successful and the monitoring service is authorized to access the resource.`);
+                this.token_manager_service.setAccessToken(tokenParameters.access_token, tokenParameters.token_type);
+                console.log(`The request is successful and the monitoring service is authorized to access the resource.`);
+            }
         }
 
         return true; // Return true only if all iterations succeed
