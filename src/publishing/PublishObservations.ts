@@ -3,10 +3,11 @@ import * as fs from 'fs';
 const N3 = require('n3');
 import axios from 'axios';
 import { StreamConsumer } from './StreamConsumer';
-import { create_ldp_container, update_latest_inbox } from '../Util';
+import { AccessToken, create_ldp_container, update_latest_inbox } from '../Util';
 const parser = new N3.Parser();
 const { DataFactory } = N3;
 const { namedNode, literal } = DataFactory;
+import { TokenManagerService } from '../service/TokenManagerService';
 
 interface QueueItem {
     container: string;
@@ -30,6 +31,7 @@ export class PublishObservations {
     private observation_pointer: number;
     private containers_to_publish: string[];
     private time_start_replay: number;
+    private token_manager_service: TokenManagerService;
     private tree_path: string;
     private is_ldes: boolean;
     private number_of_post: number;
@@ -55,6 +57,7 @@ export class PublishObservations {
         this.containers_to_publish = [];
         this.is_ldes = is_ldes;
         this.sort_subject_length = 0;
+        this.token_manager_service = TokenManagerService.getInstance();
         this.frequency_buffer = frequency_buffer;
         this.time_start_replay = Date.now();
         this.communication = new LDPCommunication();
@@ -135,17 +138,19 @@ export class PublishObservations {
      * Publishes one observation to the LDES stream.
      * @returns {Promise<void>} - A promise that resolves when the observation has been published.
      */
-    async publish_one_observation() {
+    async publish_one_observation(authorization_token: AccessToken) {
         if (this.number_of_post > this.sort_subject_length * this.containers_to_publish.length) {
             console.log('All observations have been published.');
             process.exit();
         }
         else {
             try {
+                let { token, token_type } = authorization_token;
                 if (this.sorted_observation_subjects[this.observation_pointer]) {
                     const headers: Headers = new Headers({
                         timeout: '10000',
                         'Content-Type': 'text/turtle',
+                        'Authorization': `${token_type} ${token}`
                     });
                     const observation = JSON.stringify(this.sorted_observation_subjects[this.observation_pointer]);
                     const observation_object = JSON.parse(observation);
@@ -205,7 +210,7 @@ export class PublishObservations {
      * Replays the observations.
      * @returns {Promise<void>} - A promise that resolves when the observations have been replayed.
      */
-    async replay_observations() {
+    async replay_observations(authorization_token: AccessToken) {
         await this.initializePromise;
         if (this.store) {
             if (this.observation_pointer < this.sorted_observation_subjects.length) {
@@ -214,7 +219,7 @@ export class PublishObservations {
                 }, 1000 / this.frequency);
 
                 setInterval(() => {
-                    this.publish_one_observation();
+                    this.publish_one_observation(authorization_token);
                 }, 1000 / this.frequency_buffer);
             }
             else {

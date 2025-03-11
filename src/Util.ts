@@ -57,4 +57,9 @@ export async function update_latest_inbox(latest_container_url: string) {
     else {
         console.log(`Successfully updated the latest inbox to ${latest_container_url}`);
     }
-}   
+}
+
+export type AccessToken = {
+    token: string,
+        token_type: string
+}

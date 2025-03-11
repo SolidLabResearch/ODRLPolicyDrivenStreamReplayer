@@ -2,6 +2,8 @@
 
 The ODRL Policy Driven Strean is a service which generates a stream of events and publishes them to an LDP container of a Solid Pod via the HTTP protocol. The events are generated for different sensors, and the normal and abnormal events with values for the sensors are generated with a predefined noise level. 
 
+The ODRL Policy Driven Stream Replayer utilizes the User Managed Access (UMA) flow with ODRL to make sure only authorized agents can write and read the data from the Solid Pod. 
+
 ## Usage
 
 ### Installation
@@ -9,6 +11,12 @@ The ODRL Policy Driven Strean is a service which generates a stream of events an
 ```bash
 npm install
 ```
+
+### Running the UMA server
+
+A seperate authorization server which supports User Managed Access needs to run with the Solid Pod's WebID containing the information to reach the particular UMA server. The Solid Pod should contain policies defining the write access for the ODRL Policy Driven Stream Replayer Service.
+
+The authorization server is available [here](https://github.com/SolidLabResearch/user-managed-access/tree/project/pacsoi-poc1) where it should be downloaded.
 
 ### Building
 
