@@ -5,6 +5,6 @@
     "frequency_event": 4,
     "frequency_buffer": 1,
     "file_location": "/users/kbisenug/dahcc-benchmark-dataset/accelerometer-80sec/4Hz.nt",
-    "is_ldes": true,
+    "is_ldes": false,
     "tree_path": "https://saref.etsi.org/core/hasTimestamp"
 }
