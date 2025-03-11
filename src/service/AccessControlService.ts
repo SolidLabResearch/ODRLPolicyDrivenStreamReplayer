@@ -127,7 +127,7 @@ export class AccessControlService {
             permission: [
                 {
                     "@type": "Permission",
-                    "@id": `http://example.org/monitoring-request-permission/${randomUUID()}`,
+                    "@id": `http://example.org/writing-request-permission/${randomUUID()}`,
                     target: resource_to_write,
                     action: { "@id": "https://w3id.org/oac#write" },
                     assigner: this.solid_pod_webID,
@@ -135,14 +135,14 @@ export class AccessControlService {
                     constraint: [
                         {
                             "@type": "Constraint",
-                            "@id": `http://example.org/stream-replay-write-permission-purpose/${randomUUID()}`,
+                            "@id": `http://example.org/stream-replay-write-permission-purpose/}`,
                             leftOperand: "purpose",
                             operator: "eq",
                             rightOperand: { "@id": `${purposeForWriting}` }
                         },
                         {
                             "@type": "Constraint",
-                            "@id": `http://example.org/stream-replay-write-permission-purpose/${randomUUID()}`,
+                            "@id": `http://example.org/stream-replay-write-permission-lb/}`,
                             leftOperand: { "@id": "https://w3id.org/oac#LegalBasis" },
                             operator: "eq",
                             rightOperand: { "@id": `${legalBasis}` },
