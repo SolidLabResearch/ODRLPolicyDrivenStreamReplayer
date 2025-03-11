@@ -55,7 +55,7 @@ export class AccessControlService {
         return policy;
     }
 
-    async authorizeRequest(purposeForWriting: string, legalBasis: string): Promise<boolean> {
+    async authorizeRequest(purposeForWriting: string, legalBasis: string): Promise<boolean> {       
         for (let resource of this.resources_to_write) {
             const fetch_response = await fetch(resource, {
                 method: 'GET',
@@ -76,24 +76,23 @@ export class AccessControlService {
             const token_endpoint = authorization_server_uma_config.token_endpoint;
             const claim_jwt_token = this.generateJWTToken(purposeForWriting, this.writing_agent, legalBasis);
             const writingRequestWithODRLClaims = this.generateWritingAccessWithODRLClaims(this.writing_agent, resource, authorization_ticket, purposeForWriting, legalBasis, claim_jwt_token);
-
             const monitoringServiceWritingResponseWithClaims = await fetch(token_endpoint, {
                 method: 'POST',
                 headers: {
                     'content-type': 'application/json'
                 },
                 body: JSON.stringify(writingRequestWithODRLClaims)
-            });
-
+            });            
             const tokenParameters = await monitoringServiceWritingResponseWithClaims.json();
-
+            console.log(tokenParameters.required_claims);
+            
             const accessWithTokenResponse = await fetch(resource, {
                 headers: {
                     'Authorization': `${tokenParameters.token_type} ${tokenParameters.access_token}`
                 }
             });
 
-            if (accessWithTokenResponse.status !== 200) {
+            if (accessWithTokenResponse.status !== 200) {                
                 console.log(`The request is unsuccessful and the monitoring service is not authorized to access the resource.`);
                 return false; // Return false immediately if any iteration fails
             }
@@ -112,6 +111,8 @@ export class AccessControlService {
             "urn:solidlab:uma:claims:types:webid": requesting_agent,
             "https://w3id.org/oac#LegalBasis": legalBasis,
         };
+        console.log(data_request_claims);
+        
         // Now Generating a JWT (HS256; secret: "ceci n'est pas un secret")
         const claim_jwt_token = jwt.sign(data_request_claims, 'ceci n\'est pas un secret', { algorithm: 'HS256' });
         return claim_jwt_token;
@@ -135,7 +136,7 @@ export class AccessControlService {
                     constraint: [
                         {
                             "@type": "Constraint",
-                            "@id": `http://example.org/stream-replay-write-permission-purpose/}`,
+                            "@id": `http://example.org/stream-replay-write-permission-purpose/`,
                             leftOperand: "purpose",
                             operator: "eq",
                             rightOperand: { "@id": `${purposeForWriting}` }

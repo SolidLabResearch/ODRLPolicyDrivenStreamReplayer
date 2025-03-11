@@ -17,7 +17,7 @@ PREFIX ex: <http://example.org/>
     odrl:action odrl:write ;
     odrl:target <http://n063-02b.wall2.ilabt.iminds.be:3000/pod1/acc-x/> ;
     odrl:assigner <http://n063-02b.wall2.ilabt.iminds.be:3000/pod1/profile/card#me> ;
-    odrl:assignee <http://n063-04b.wall2.ilabt.iminds.be/replayer/> ;
+    odrl:assignee <http://n063-04b.wall2.ilabt.iminds.be/replayer#me> ;
     odrl:constraint <http://example.org/stream-replay-write-permission-purpose>,
         <http://example.org/stream-replay-write-permission-lb/> .
 

@@ -24,9 +24,9 @@ export class ODRLEventReplayer {
         this.replay_locations = replay_locations;
         this.frequency_event = frequency_event;
         this.is_ldes = if_ldes;
-        this.writing_agent = process.env.STREAM_REPLAYER_LOCATION;
+        this.writing_agent = process.env.STREAM_REPLAYER_LOCATION + "#me";
         this.purposeForAccess = process.env.PURPOSE_FOR_ACCESS
-        this.legalBasis = process.env.LEGAL_BASIS + "#eu-gdpr:A9-2-a" // for GDPR access
+        this.legalBasis = process.env.LEGAL_BASIS + "#A9-2-a" // for GDPR access
         this.tree_path = tree_path;
         this.webID = this.generateWebID(replay_locations)
         this.access_control_service = new AccessControlService(this.writing_agent, replay_locations, this.webID);
@@ -34,8 +34,7 @@ export class ODRLEventReplayer {
     }
 
     async replay_observations_post_authentication() {
-
-        if (this.purposeForAccess && this.legalBasis) {
+        if (this.purposeForAccess && this.legalBasis) {            
             if (await (this.access_control_service.authorizeRequest(this.purposeForAccess, this.legalBasis))) {
                 let { access_token, token_type } = this.token_manager_service.getAccessToken();
                 if (access_token && token_type) {
