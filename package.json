@@ -1,7 +1,7 @@
 {
-    "name": "solid-stream-replay",
+    "name": "odrl-policy-driven-stream-replayer",
     "version": "2.0.3",
-    "description": "A tool to replay a stream of events from a file to a Solid Server with a POST request",
+    "description": "It is a service which generates a stream of events and publishes them to an LDP container of a Solid Pod via the HTTP protocol by authentication with the User Managed Access (UMA) flow",
     "main": "dist/index.js",
     "scripts": {
         "build": "npx tsc",
@@ -30,6 +30,7 @@
         "@types/jsonwebtoken": "^9.0.9",
         "axios": "^1.6.8",
         "commander": "^12.1.0",
+        "jsonwebtoken": "^9.0.2",
         "n3": "^1.17.3"
     }
 }

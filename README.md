@@ -1,6 +1,6 @@
 # ODRL Policy Driven Stream Replayer
 
-The ODRL Policy Driven Strean is a service which generates a stream of events and publishes them to an LDP container of a Solid Pod via the HTTP protocol. The events are generated for different sensors, and the normal and abnormal events with values for the sensors are generated with a predefined noise level. 
+The ODRL Policy Driven Stream is a service which generates a stream of events and publishes them to an LDP container of a Solid Pod via the HTTP protocol. The events are generated for different sensors, and the normal and abnormal events with values for the sensors are generated with a predefined noise level. 
 
 The ODRL Policy Driven Stream Replayer utilizes the User Managed Access (UMA) flow with ODRL to make sure only authorized agents can write and read the data from the Solid Pod. 
 
