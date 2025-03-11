@@ -1,12 +1,10 @@
 {
     "locations": [
-        "http://n063-02b.wall2.ilabt.iminds.be:3000/pod1/acc-x/",
-        "http://n063-02b.wall2.ilabt.iminds.be:3000/pod1/acc-y/",
-        "http://n063-02b.wall2.ilabt.iminds.be:3000/pod1/acc-z/"
+        "http://n063-02b.wall2.ilabt.iminds.be:3000/pod1/acc-x/"
     ],
     "frequency_event": 4,
     "frequency_buffer": 1,
-    "file_location": "/users/kbisenug/dataset/acc-x-1min.nt",
+    "file_location": "/users/kbisenug/dahcc-benchmark-dataset/accelerometer-80sec/4Hz.nt",
     "is_ldes": true,
     "tree_path": "https://saref.etsi.org/core/hasTimestamp"
 }
