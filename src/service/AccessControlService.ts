@@ -111,8 +111,6 @@ export class AccessControlService {
             "urn:solidlab:uma:claims:types:webid": requesting_agent,
             "https://w3id.org/oac#LegalBasis": legalBasis,
         };
-        console.log(data_request_claims);
-        
         // Now Generating a JWT (HS256; secret: "ceci n'est pas un secret")
         const claim_jwt_token = jwt.sign(data_request_claims, 'ceci n\'est pas un secret', { algorithm: 'HS256' });
         return claim_jwt_token;
